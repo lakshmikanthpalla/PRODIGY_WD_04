@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <style>
+    body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+  }
+
+  .stopwatch {
+    text-align: center;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .time {
+    font-size: 3rem;
+    margin: 1rem 0;
+    cursor: pointer;
+  }
+
+  .buttons button {
+    margin: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .buttons button:hover {
+    opacity: 0.9;
+  }
+
+  .buttons .start {
+    background-color: green;
+    color: black;
+    padding-right: 25px;
+  }
+
+  .buttons .pause {
+    background-color: red;
+    color: black;
+  }
+
+  .buttons .reset {
+    background-color: rgb(255, 255, 58);
+    color: black;
+  }
+
+  .buttons .lap {
+    background-color: #007bff;
+    color: black;
+  }
+
+  .laps {
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .laps ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .laps li {
+    background: #e9ecef;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    border-radius: 5px;
+  }
+    
+  </style>
+  
+</head>
+<body>
+  <div class="stopwatch">
+    <div class="time" id="time-display">00:00:00</div>
+    <div class="buttons">
+      <button class="start" id="start-btn">Start</button>
+      <button class="pause" id="pause-btn" disabled>Pause</button>
+      <br>
+      <button class="reset" id="reset-btn" disabled>Reset</button>
+      <button class="lap" id="lap-btn" disabled>Lap</button>
+    </div>
+    <div class="laps">
+      <ul id="laps-list"></ul>
+    </div>
+  </div>
+  <script>
+    let timerInterval;
+    let elapsedTime = 0;
+    let isRunning = false;
+
+    const timeDisplay = document.getElementById('time-display');
+    const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const lapBtn = document.getElementById('lap-btn');
+    const lapsList = document.getElementById('laps-list');
+
+    function formatTime(milliseconds) {
+      const totalSeconds = Math.floor(milliseconds / 1000);
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      const millis = String(milliseconds % 1000).padStart(3, '0').substring(0, 2);
+      return `${minutes}:${seconds}:${millis}`; // Fixed backticks here
+    }
+
+    function updateTime() {
+      timeDisplay.textContent = formatTime(elapsedTime);
+    }
+
+    function startTimer() {
+      if (!isRunning) {
+        isRunning = true;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        resetBtn.disabled = false;
+        lapBtn.disabled = false;
+
+        const startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+          elapsedTime = Date.now() - startTime;
+          updateTime();
+        }, 10);
+      }
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      elapsedTime = 0;
+      updateTime();
+      lapsList.innerHTML = '';
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+      resetBtn.disabled = true;
+      lapBtn.disabled = true;
+    }
+
+    function addLap() {
+      const lapTime = formatTime(elapsedTime);
+      const lapItem = document.createElement('li');
+      lapItem.textContent = lapTime;
+      lapsList.appendChild(lapItem);
+    }
+
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    lapBtn.addEventListener('click', addLap);
+  </script>
+
+  
+</body>
+</html>
